@@ -1,3 +1,11 @@
+/*
+	Start of basic CGI for Rust.
+	Author: Al Poole <netstar@gmail.com>
+
+	TODO: Everything!!!
+
+*/
+
 use std::io::{Read};
 use std::io;
 use std::env;
@@ -8,7 +16,19 @@ use std::collections::HashMap;
 
 const CHUNK: usize = 4192;
 
-fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
+
+struct CGI {
+        params: HashMap<String,String>,
+}
+
+impl CGI {
+
+pub fn new(&self) -> CGI
+{
+       self.params = self.get_http_request(); 
+}
+
+fn get_pushed_data(self, data: Vec<u8>, length: usize) -> HashMap<String, String>
 {
 	let mut buf = data;
 	let mut i = 0;
@@ -39,7 +59,7 @@ fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
 	return parameters;
 }
 
-fn get_http_request() -> HashMap<String,String> {
+fn get_http_request(self) -> HashMap<String,String> {
 	let mut method = env::var("REQUEST_METHOD").unwrap();
 	let mut contents: Vec<u8> = Vec::new();
 	let mut length = 0;
@@ -97,18 +117,38 @@ fn get_http_request() -> HashMap<String,String> {
 	}
 	
 
-	get_pushed_data(contents, length)
+	self.get_pushed_data(contents, length)
 }
 
+
+
+pub fn param(&self, key: String) -> String
+{
+	let result = String::new();
+
+		
+	for (name, value) in self.params.iter()
+	{
+		if name == key
+		{
+			result.push_str(value);
+			return result;
+	.	}
+	
+	}
+}
+
+}
 
 fn main() {
 	println!("Content-Type: text/html\r\n\r\n");
  	println!("<h1>hi</h1>");
 
-	let mut params: HashMap<String,String> = get_http_request();
-	for (name, value) in params.iter()
-	{
-		println!("<p>{} and {}</p>", name, value);	
-	}
+	let mut cgi = CGI::new();
+
+	let value = cgi.param("name".to_string());
+
+	println!("<p>value is {} </p>", value);	
+
 	println!("<p>DONE!</p>");
 }
