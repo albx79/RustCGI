@@ -26,13 +26,13 @@ fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
 		}
 
 		i += 1;
-
-		while buf[i] as char != '&' 
+		
+		while i < length && buf[i] as char != '&' 
 		{
 			data.push(buf[i] as char);
 			i += 1;
 		}
-		println!("<p>{} and {}</p>", name, data);
+		i += 1;
 		parameters.insert(name, data);
 	}
 
@@ -66,6 +66,12 @@ fn get_http_request() -> HashMap<String,String> {
 				}
 			}
 			
+			println!("<p>");
+			for i in contents.iter() 
+			{
+				print!("{}", *i as char);
+			}
+			println!("</p");	
 			println!("<p>POST</p>");
 
 		}
