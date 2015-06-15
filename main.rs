@@ -8,13 +8,13 @@ use std::collections::HashMap;
 
 const CHUNK: usize = 4192;
 
-fn get_pushed_data(data: Vec<u8>) -> HashMap<String, String>
+fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
 {
 	let mut buf = data;
 	let mut i = 0;
 	let mut parameters = HashMap::new();
 
-	while i < buf.len() 
+	while i < length 
 	{
 		let mut name: String = String::new();
 		let mut data: String = String::new();
@@ -25,21 +25,24 @@ fn get_pushed_data(data: Vec<u8>) -> HashMap<String, String>
 			i += 1;
 		}
 
+		i += 1;
+
 		while buf[i] as char != '&' 
 		{
 			data.push(buf[i] as char);
 			i += 1;
 		}
-		
+		println!("<p>{} and {}</p>", name, data);
 		parameters.insert(name, data);
 	}
 
 	return parameters;
 }
 
-fn get_http_request() {
+fn get_http_request() -> HashMap<String,String> {
 	let mut method = env::var("REQUEST_METHOD").unwrap();
 	let mut contents: Vec<u8> = Vec::new();
+	let mut length = 0;
 
 	match method.as_ref()
 	{
@@ -59,8 +62,11 @@ fn get_http_request() {
 				
 				for byte in buf.iter() {
 					contents.push(*byte);
+					length += 1;
 				}
 			}
+			
+			println!("<p>POST</p>");
 
 		}
 		
@@ -71,6 +77,7 @@ fn get_http_request() {
 			for byte in query_string.as_bytes() 
 			{
 				contents.push(*byte);
+				length += 1;
 			}	
 			
 		}
@@ -83,14 +90,19 @@ fn get_http_request() {
 		}
 	}
 	
-	let mut params = get_pushed_data(contents);
+
+	get_pushed_data(contents, length)
 }
 
 
 fn main() {
-    get_http_request();
+	println!("Content-Type: text/html\r\n\r\n");
+ 	println!("<h1>hi</h1>");
 
-    println!("Content-Type: text/html\r\n\r\n");
-    println!("<h1>hi</h1>");
-
+	let mut params: HashMap<String,String> = get_http_request();
+	for (name, value) in params.iter()
+	{
+		println!("<p>{} and {}</p>", name, value);	
+	}
+	println!("<p>DONE!</p>");
 }
