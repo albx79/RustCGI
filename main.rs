@@ -1,36 +1,24 @@
-/*
-	Start of basic CGI for Rust.
+/* CGI POST and GET
 	Author: Al Poole <netstar@gmail.com>
-
-	TODO: Everything!!!
-
 */
 
 use std::io::{Read};
 use std::io;
 use std::env;
 use std::string::{String};
-use std::fs::File;
-use std::vec;
 use std::collections::HashMap;
 
 const CHUNK: usize = 4192;
 
-
 struct CGI {
-        params: HashMap<String,String>,
+	params: HashMap<String, String>,
 }
 
 impl CGI {
 
-pub fn new(&self) -> CGI
+fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
 {
-       self.params = self.get_http_request(); 
-}
-
-fn get_pushed_data(self, data: Vec<u8>, length: usize) -> HashMap<String, String>
-{
-	let mut buf = data;
+	let buf = data;
 	let mut i = 0;
 	let mut parameters = HashMap::new();
 
@@ -59,7 +47,7 @@ fn get_pushed_data(self, data: Vec<u8>, length: usize) -> HashMap<String, String
 	return parameters;
 }
 
-fn get_http_request(self) -> HashMap<String,String> {
+fn get_http_request() -> HashMap<String,String> {
 	let mut method = env::var("REQUEST_METHOD").unwrap();
 	let mut contents: Vec<u8> = Vec::new();
 	let mut length = 0;
@@ -69,7 +57,7 @@ fn get_http_request(self) -> HashMap<String,String> {
 		"POST" =>
 		{
 			method = env::var("CONTENT_LENGTH").unwrap();
-			let mut total: usize = method.trim().parse().unwrap();
+			let total: usize = method.trim().parse().unwrap();
 			let mut buf = [0u8; CHUNK];
 
 			let mut current = 0;
@@ -85,15 +73,6 @@ fn get_http_request(self) -> HashMap<String,String> {
 					length += 1;
 				}
 			}
-			
-			println!("<p>");
-			for i in contents.iter() 
-			{
-				print!("{}", *i as char);
-			}
-			println!("</p");	
-			println!("<p>POST</p>");
-
 		}
 		
 		"GET" =>
@@ -117,24 +96,29 @@ fn get_http_request(self) -> HashMap<String,String> {
 	}
 	
 
-	self.get_pushed_data(contents, length)
+	CGI::get_pushed_data(contents, length)
 }
 
 
 
-pub fn param(&self, key: String) -> String
+pub fn param(&self, key: &'static str) -> String
 {
-	let result = String::new();
+	let mut result = String::new();
 
-		
 	for (name, value) in self.params.iter()
 	{
-		if name == key
-		{
+		if name == key {
 			result.push_str(value);
 			return result;
-	.	}
-	
+		}
+	}
+	panic!("uh oh")
+}
+
+pub fn new() -> CGI
+{
+	return CGI {
+		params: CGI::get_http_request()
 	}
 }
 
@@ -144,9 +128,9 @@ fn main() {
 	println!("Content-Type: text/html\r\n\r\n");
  	println!("<h1>hi</h1>");
 
-	let mut cgi = CGI::new();
+	let cgi = CGI::new();
 
-	let value = cgi.param("name".to_string());
+	let value = cgi.param("data");
 
 	println!("<p>value is {} </p>", value);	
 
