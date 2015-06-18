@@ -1,4 +1,4 @@
-/* CGI POST and GET
+/* cgi POST and GET
 	Author: Al Poole <netstar@gmail.com>
 */
 
@@ -10,11 +10,12 @@ use std::collections::HashMap;
 
 const CHUNK: usize = 4192;
 
-struct CGI {
+pub struct Cgi {
 	params: HashMap<String, String>,
+	cookies: HashMap<String, String>,
 }
 
-impl CGI {
+impl Cgi {
 
 fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
 {
@@ -45,6 +46,13 @@ fn get_pushed_data(data: Vec<u8>, length: usize) -> HashMap<String, String>
 	}
 
 	return parameters;
+}
+
+fn get_http_cookies() -> HashMap<String,String> {
+	let mut contents: Vec<u8> = Vec::new();
+	let mut cookies = HashMap::new();
+
+	return cookies;
 }
 
 fn get_http_request() -> HashMap<String,String> {
@@ -96,7 +104,7 @@ fn get_http_request() -> HashMap<String,String> {
 	}
 	
 
-	CGI::get_pushed_data(contents, length)
+	Cgi::get_pushed_data(contents, length)
 }
 
 
@@ -115,24 +123,13 @@ pub fn param(&self, key: &'static str) -> String
 	panic!("uh oh")
 }
 
-pub fn new() -> CGI
+pub fn new() -> Cgi
 {
-	return CGI {
-		params: CGI::get_http_request()
+	return Cgi {
+		cookies: Cgi::get_http_cookies(),
+		params: Cgi::get_http_request(),
 	}
 }
 
 }
 
-fn main() {
-	println!("Content-Type: text/html\r\n\r\n");
- 	println!("<h1>hi</h1>");
-
-	let cgi = CGI::new();
-
-	let value = cgi.param("data");
-
-	println!("<p>value is {} </p>", value);	
-
-	println!("<p>DONE!</p>");
-}
