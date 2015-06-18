@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 const CHUNK: usize = 4192;
 
-struct Cookie {
+pub struct Cookie {
 	name: String,
 	value: String,
 	expiry: u32,
@@ -18,9 +18,24 @@ struct Cookie {
 	domain: String,
 }
 
+
+impl Cookie {
+
+pub fn new() -> Cookie
+{
+	return Cookie {
+		name: "".to_string(),
+		path: "".to_string(),
+		domain: "".to_string(),
+		value: "".to_string(),
+		expiry: 0,
+	}
+}
+}
+
 pub struct Cgi {
 	params: HashMap<String, String>,
-	cookies: Vec<Cookie>,
+	pub cookies:  Vec<Cookie>,
 }
 
 impl Cgi {
@@ -106,16 +121,16 @@ fn find_header(buf: &mut [u8;65535], needle: &str, byte: u8) -> String
 
 
 fn get_http_cookies() -> Vec<Cookie> {
-	let contents: Vec<u8> = Vec::new();
 	let method = "";
 	let mut cookies: Vec<Cookie> = Vec::new();
 
 	match env::var("HTTP_COOKIES")
 	{
-		Ok(val) => 
+		Ok(_) => 
 		{
+
 		}
-		Err(e) =>
+		Err(_) =>
 		{
 			return cookies;
 		}
@@ -174,14 +189,34 @@ fn get_http_cookies() -> Vec<Cookie> {
 	return cookies;
 }
 
-fn cookies_set(&self, content: String) {
+pub fn cookies_set(&self, content: String) {
 
-        /*for c in self.cookies.iter()
+        for c in self.cookies.iter()
         {
 		println!("Set-Cookie: ");
+		let mut output = format!("{}={};", c.name, c.value);
+		println!("{}", output);
+		if c.expiry > 0
+		{	
+			output = format!("expires={};", c.expiry); 
+			println!("{}", output);
+		}
+	
+		if ! c.path.is_empty()
+		{
+			output = format!("path={};", c.path);
+			println!("{}", output);
+		}
+
+		if ! c.domain.is_empty()
+		{
+			output = format!("domain={};", c.domain);
+			println!("{}", output);
+		}
+
+		println!("\r\n"); // end of one
         }
 	
-	*/
 	println!("Content-Type: {}", content);
 }
 

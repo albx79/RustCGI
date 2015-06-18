@@ -1,12 +1,16 @@
 extern crate WebFoolKit;
 
 fn main() {
-	println!("Content-Type: text/html\r\n\r\n");
+	let c = WebFoolKit::Cgi::new();
+	let value = c.param("data");
+	let mut cookie = WebFoolKit::Cookie::new();
+
+	c.cookies.push(cookie);
+
+	c.cookies_set("text/html".to_string());
+
  	println!("<h1>hi</h1>");
 
-	let c = WebFoolKit::Cgi::new();
-
-	let value = c.param("data");
 
 	println!("<p>value is {} </p>", value);	
 
