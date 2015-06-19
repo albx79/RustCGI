@@ -11,13 +11,13 @@ use std::collections::HashMap;
 const CHUNK: usize = 4192;
 
 pub struct Cookie {
-	name: String,
-	value: String,
-	expiry: u32,
-	path: String,
-	domain: String,
+	pub name: String,
+	pub value: String,
+	pub expiry: u32,
+	pub path: String,
+	pub domain: String,
+	is_new: bool,
 }
-
 
 impl Cookie {
 
@@ -29,13 +29,14 @@ pub fn new() -> Cookie
 		domain: "".to_string(),
 		value: "".to_string(),
 		expiry: 0,
+		is_new: true,
 	}
 }
 }
 
 pub struct Cgi {
 	params: HashMap<String, String>,
-	pub cookies:  Vec<Cookie>,
+	pub cookies: Vec<Cookie>,
 }
 
 impl Cgi {
@@ -183,41 +184,61 @@ fn get_http_cookies() -> Vec<Cookie> {
 		let path = Cgi::find_header(&mut line,  "path=", ';' as u8);
 		let domain = Cgi::find_header(&mut line, "domain=", ';' as u8);
 	
-		cookies.push(Cookie{name: name, value: value, expiry: expiry, path: path, domain: domain});
+		cookies.push(Cookie{name: name, value: value, expiry: expiry, path: path, domain: domain, is_new: false});
 	}
 
 	return cookies;
 }
 
-pub fn cookies_set(&self, content: String) {
+pub fn cookie_get(&self, name: String)  -> Cookie {
+	let mut cookie = Cookie::new();
+
+	for c in self.cookies.iter()
+	{
+		if ! c.name.is_empty() && c.name == name.to_string()
+		{
+			cookie.name = c.name.to_string(); //  = c.clone();
+			cookie.value = c.value.to_string();
+			cookie.path  = c.path.to_string();
+			cookie.domain = c.domain.to_string();
+			cookie.expiry = c.expiry;
+			return cookie;	
+		}
+	}
+
+	return cookie; // empty 
+}
+
+pub fn cookies_set(&self, content: &'static str) {
 
         for c in self.cookies.iter()
         {
-		println!("Set-Cookie: ");
-		let mut output = format!("{}={};", c.name, c.value);
-		println!("{}", output);
-		if c.expiry > 0
-		{	
-			output = format!("expires={};", c.expiry); 
-			println!("{}", output);
-		}
-	
-		if ! c.path.is_empty()
+		if c.is_new && !c.name.is_empty() // BUG?
 		{
-			output = format!("path={};", c.path);
+			print!("Set-Cookie: ");
+			let mut output = format!("{}={};", c.name, c.value);
 			println!("{}", output);
-		}
+			if c.expiry > 0
+			{	
+				output = format!("expires={};", c.expiry); 
+				println!("{}", output);
+			}
+		
+			if ! c.path.is_empty()
+			{
+				output = format!("path={};", c.path);
+				println!("{}", output);
+			}
 
-		if ! c.domain.is_empty()
-		{
-			output = format!("domain={};", c.domain);
-			println!("{}", output);
-		}
-
-		println!("\r\n"); // end of one
-        }
+			if ! c.domain.is_empty()
+			{
+				output = format!("domain={};", c.domain);
+				println!("{}", output);
+			}
+       		 }
 	
-	println!("Content-Type: {}", content);
+	}
+	println!("Content-Type: {}\r\n\r\n", content);
 }
 
 fn get_http_request() -> HashMap<String,String> {
