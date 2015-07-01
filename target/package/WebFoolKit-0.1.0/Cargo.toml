@@ -8,4 +8,7 @@ homepage = "http://www.haxlab.org"
 repository = "https://github.com/haxworx/RustCGI"
 readme = "README"
 keywords = ["CGI", "Cookies", "Web"]
-license = "BSD-2-Clause"
+license = "BSD"
+[dependencies.threadpool]
+version = "*"
+git = "https://github.com/rust-lang/threadpool"

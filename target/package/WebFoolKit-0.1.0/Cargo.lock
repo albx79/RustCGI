@@ -1,0 +1,12 @@
+[root]
+name = "WebFoolKit"
+version = "0.1.0"
+dependencies = [
+ "threadpool 0.1.4 (git+https://github.com/rust-lang/threadpool)",
+]
+
+[[package]]
+name = "threadpool"
+version = "0.1.4"
+source = "git+https://github.com/rust-lang/threadpool#b9416b4cb591a3ac8bac8efef19e5cbf5e212a9d"
+
